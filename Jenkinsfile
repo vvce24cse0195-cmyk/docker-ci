@@ -7,25 +7,21 @@ pipeline {
     }
 
     stages {
-        stage('1. Checkout Code') {
+
+        stage('1. Application Build & Test') {
             steps {
-                checkout scm
+                bat 'python --version'
+                bat 'python -m py_compile app.py'
             }
         }
 
-        stage('2. Application Build & Test') {
-            steps {
-                bat 'C:\\Users\\VVCE\\AppData\\Local\\Programs\\Python\\Python311\\python.exe -m py_compile app.py'
-            }
-        }
-
-        stage('3. Build & Tag Docker Image') {
+        stage('2. Build & Tag Docker Image') {
             steps {
                 bat "docker build -t ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} -t ${REGISTRY}/${IMAGE_NAME}:latest ."
             }
         }
 
-        stage('4. Push Image to Registry') {
+        stage('3. Push Image to Registry') {
             steps {
                 bat "docker push ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}"
                 bat "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
@@ -35,7 +31,7 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline succeeded! Image ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} is available locally and in the registry."
+            echo "Pipeline succeeded! Docker image pushed successfully."
         }
     }
 }
